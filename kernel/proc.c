@@ -5,6 +5,10 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
+
 
 struct cpu cpus[NCPU];
 
@@ -29,6 +33,22 @@ struct spinlock wait_lock;
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
+
+//Xiaosu_PA2argint
+//sets the priority of the current process. This function will be called by the system call wrapper in sysproc.c.
+void
+set_priority(int n)
+{
+    struct proc *p = myproc(); // Get the current process
+
+    acquire(&p->lock); // Ensure exclusive access to this process's data
+    if(n >= 0 && n < 10){
+        p->priority = n; // Set the priority for the current process
+    }
+    release(&p->lock); // Release the lock
+}
+//Xiaosu_PA2
+
 void
 proc_mapstacks(pagetable_t kpgtbl)
 {
@@ -131,7 +151,7 @@ found:
     release(&p->lock);
     return 0;
   }
-
+  p->priority = 10;
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -442,34 +462,73 @@ wait(uint64 addr)
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
 void
-scheduler(void)
-{
-  struct proc *p;
-  struct cpu *c = mycpu();
-  
-  c->proc = 0;
-  for(;;){
-    // Avoid deadlock by ensuring that devices can interrupt.
-    intr_on();
+scheduler(void) {
+    struct proc *p;
+    struct cpu *c = mycpu();
+    struct proc *highest_priority_proc;
+    int highest_priority;
 
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
+    c->proc = 0;
+    for(;;) {
+        // Avoid deadlock by ensuring that devices can interrupt.
+        intr_on();
 
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-      }
-      release(&p->lock);
+        // Initialize the highest priority seen so far to a large number
+        highest_priority = 1000000; // Assuming no process has a priority this high
+        highest_priority_proc = NULL;
+
+        for(p = proc; p < &proc[NPROC]; p++) {
+            acquire(&p->lock);
+            if(p->state == RUNNABLE && p->priority < highest_priority) {
+                // If this process is runnable and has a higher priority than the current highest, remember it
+                highest_priority = p->priority;
+                highest_priority_proc = p;
+            }
+            release(&p->lock);
+        }
+
+        // If we found a runnable process with the highest priority, run it
+        if(highest_priority_proc != NULL) {
+            acquire(&highest_priority_proc->lock);
+            highest_priority_proc->state = RUNNING;
+            c->proc = highest_priority_proc;
+            swtch(&c->context, &highest_priority_proc->context);
+
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
+            release(&highest_priority_proc->lock);
+        }
     }
-  }
 }
+
+//{
+//  struct proc *p;
+//  struct cpu *c = mycpu();
+//
+//  c->proc = 0;
+//  for(;;){
+//    // Avoid deadlock by ensuring that devices can interrupt.
+//    intr_on();
+//
+//    for(p = proc; p < &proc[NPROC]; p++) {
+//      acquire(&p->lock);
+//      if(p->state == RUNNABLE) {
+//        // Switch to chosen process.  It is the process's job
+//        // to release its lock and then reacquire it
+//        // before jumping back to us.
+//        p->state = RUNNING;
+//        c->proc = p;
+//        swtch(&c->context, &p->context);
+//
+//        // Process is done running for now.
+//        // It should have changed its p->state before coming back.
+//        c->proc = 0;
+//      }
+//      release(&p->lock);
+//    }
+//  }
+//}
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores

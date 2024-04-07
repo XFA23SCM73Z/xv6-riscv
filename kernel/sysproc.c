@@ -89,3 +89,18 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+//Xiaosu_PA2
+uint64
+sys_setPriority(void)
+{
+    int n;
+    argint(0, &n);
+
+    if(n < 0 || n >= 10)
+        return -1; // If the priority is out of bounds, return -1
+
+    // Call the function that actually sets the priority
+    set_priority(n);
+    return 0; // On success, return 0
+}
+//Xiaosu_PA2

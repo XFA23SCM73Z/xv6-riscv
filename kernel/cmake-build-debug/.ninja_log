@@ -1,0 +1,11 @@
+# ninja log v5
+1	236	1709067373953585534	CMakeFiles/kernel.dir/exec.c.o	db0ca584e413486e
+1	242	1709067373952280224	CMakeFiles/kernel.dir/bio.c.o	b5a227c3863ccdd
+1	243	1709067373952584001	CMakeFiles/kernel.dir/console.c.o	5ad3d1aff2de641
+1	244	1709067373953115308	CMakeFiles/kernel.dir/file.c.o	b3ee9e558401f6df
+1	246	1709067373956502015	CMakeFiles/kernel.dir/fs.c.o	6abddbc0256c1c9f
+2	249	1709067373952181729	CMakeFiles/kernel.dir/kalloc.c.o	1493fbec4a82ff4e
+242	275	1709067373988176570	CMakeFiles/kernel.dir/main.c.o	f41abfbb51db6d8e
+244	277	1709067373994461759	CMakeFiles/kernel.dir/pipe.c.o	78c49a0b02801608
+245	278	1709067373995954476	CMakeFiles/kernel.dir/plic.c.o	a02a50b71f1d9ef6
+247	283	1709067374001977678	CMakeFiles/kernel.dir/printf.c.o	474aeb834a8a21b6
