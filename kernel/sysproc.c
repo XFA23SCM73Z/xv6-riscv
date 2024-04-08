@@ -104,3 +104,13 @@ sys_setPriority(void)
     return 0; // On success, return 0
 }
 //Xiaosu_PA2
+
+int sys_myPages(void) {
+    int pid;
+    argint(0, &pid);
+    if (pid < 1)
+        return -1;
+    return myPages(pid);
+}
+//Group_2_PA3
+

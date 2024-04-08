@@ -107,6 +107,7 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 void set_priority(int n);//Xiaosu_PA2
+int myPages(int pid);//Group2_PA3
 
 
 // swtch.S

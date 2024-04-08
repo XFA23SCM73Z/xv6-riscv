@@ -25,6 +25,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int setPriority(int n);//Xiaosu_PA2
+int myPages(int pid);//Group_2_PA3
 
 
 // ulib.c

@@ -21,3 +21,5 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_setPriority  22 //Xiaosu_PA2
+#define SYS_myPages 23 //Group_2_PA3
+

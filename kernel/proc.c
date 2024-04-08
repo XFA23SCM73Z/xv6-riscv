@@ -9,6 +9,7 @@
 #define NULL ((void*)0)
 #endif
 
+extern struct proc proc[NPROC];
 
 struct cpu cpus[NCPU];
 
@@ -48,6 +49,56 @@ set_priority(int n)
     release(&p->lock); // Release the lock
 }
 //Xiaosu_PA2
+
+void printPageFlags(pte_t pte) {
+    printf("Flags set:");
+    if (pte & PTE_V) printf(" V");
+    if (pte & PTE_R) printf(" R");
+    if (pte & PTE_W) printf(" W");
+    if (pte & PTE_X) printf(" X");
+    if (pte & PTE_U) printf(" U");
+    printf("\n");
+}
+
+// Function to print the details of all pages in a given pagetable.
+void walkAndPrintPagetable(pagetable_t pagetable) {
+    // For each level 2 PTE:
+    for (int i = 0; i < 512; i++) {
+        pte_t pte = pagetable[i];
+        if (pte & PTE_V) {
+            uint64 child = PTE2PA(pte); // Get the address of the next level page table.
+            // Repeat this for the next level (level 1) if needed.
+
+            // Here, we just print the level 2 PTE.
+            printf("Level 2 PTE %d: PA %p\n", i, child);
+            printPageFlags(pte);
+        }
+    }
+}
+
+// Function to find and print the page details for a given PID.
+int myPages(int pid) {
+    struct proc *p;
+    int found = 0;
+
+    for (p = proc; p < &proc[NPROC]; p++) {
+        acquire(&p->lock);
+        if (p->pid == pid) {
+            found = 1;
+            printf("Pages for process %d:\n", pid);
+            walkAndPrintPagetable(p->pagetable);
+            release(&p->lock);
+            return 0;  // Indicate success
+        }
+        release(&p->lock);
+    }
+
+    if (!found) {
+        printf("No process found with PID %d.\n", pid);
+    }
+    return -1;  // Indicate error if no process is found
+}
+
 
 void
 proc_mapstacks(pagetable_t kpgtbl)
